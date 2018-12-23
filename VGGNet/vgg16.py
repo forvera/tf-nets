@@ -13,11 +13,11 @@ class vgg16(network):
         self.keep_prob = keep_prob
 
     def inference(self, rgb_x):
-         """
+        """
         load variable from npy to build the VGG
         :param x: x image [batch, height, width, 3] values scaled [0, 1]
         """
-        rgb_scale = rgb_x * 255.0
+        rgb_scaled = rgb_x * 255.0
         red, green, blue = tf.split(axis=3, num_or_size_splits=3, value=rgb_scaled)
         assert reg.get_shape().as_list()[1:] == [224, 224, 1]
         assert green.get_shape().as_list()[1:] == [224, 224, 1]
@@ -67,4 +67,14 @@ class vgg16(network):
 
         self.prob = tf.nn.softmax(self.fc8, name='prob')
         
-        pass
+        return self.prob
+
+    def loss(self, batch_x, batch_y=None, trainable=True):
+        self.trainable = trainable
+        y_predict = self.inference(batch_x)
+        self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=y_predict, labels=batch_y))
+        return self.loss
+    
+    def optimize(self, learning_rate, train_layers=[]):
+        var_list = [v for v in tf.trainable_variables() if v.name.split('/')[0] in train_layers]
+        return tf.train.AdamOptimizer(learning_rate).minimize(self.loss, var_list=var_list)

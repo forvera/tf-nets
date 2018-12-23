@@ -1,7 +1,4 @@
 import tensorflow as tf
-import tensorflow.contrib.slim as slim
-from tensorflow.contrib.slim import losses
-from tensorflow.contrib.slim import arg_scope
 
 import numpy as np
 
@@ -22,7 +19,7 @@ class network(object):
     def _conv_layer(self, x, conv_data, name, activation='relu', strides=[1, 1, 1, 1], padding='SAME', is_training=False, reuse=None):
         with tf.variable_scope(name):
             kernel = tf.constant(conv_data[0], name='weights')
-            biases = tf.constant(conv_data[1], name='biases'
+            biases = tf.constant(conv_data[1], name='biases')
             conv = tf.nn.conv2d(x, kernel, strides=strides, padding=padding)
             bias = tf.nn.bias_add(conv, biases)
             if activation=='relu':
